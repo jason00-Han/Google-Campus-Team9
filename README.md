@@ -15,7 +15,7 @@
 └── docker-compose.yml # 서비스 통합 실행을 위한 Docker Compose 파일
 ```
 
-## 🚀 시작하기
+## 시작하기
 
 ### 사전 요구사항
 
