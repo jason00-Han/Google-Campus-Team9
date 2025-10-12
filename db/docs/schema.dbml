@@ -1,0 +1,165 @@
+//// ----------------------------------------------------
+//// dbml document generated from V1__initial_schema.sql
+////
+//// How to use:
+//// 1. Go to https://dbdiagram.io/d
+//// 2. Paste this code into the editor on the left.
+//// 3. The ER diagram will be automatically generated on the right.
+//// ----------------------------------------------------
+
+Project HappyDB {
+  database_type: 'PostgreSQL'
+  Note: 'Schema for the AI Diary Visualization Project'
+}
+
+Table users {
+  id int [pk, increment]
+  email varchar(255) [unique, not null]
+  password varchar(255) [not null]
+  name varchar(255)
+  gender varchar(50)
+  role varchar(50) [default: 'user']
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+}
+
+Table characters {
+  id int [pk, increment]
+  user_id int [not null]
+  name varchar(255) [not null]
+  description jsonb
+}
+
+Table styles {
+  id int [pk, increment]
+  key varchar(255) [unique, not null]
+  name varchar(255)
+  description text
+}
+
+Table genres {
+  id int [pk, increment]
+  key varchar(255) [unique, not null]
+  name varchar(255)
+  description text
+}
+
+Table storylines {
+  id int [pk, increment]
+  user_id int [not null]
+  title varchar(255) [not null]
+  style_id int
+  character_id int
+  genre_id int
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+}
+
+Table user_default_settings {
+  id int [pk, increment]
+  user_id int [not null]
+  character_id int
+  style_id int
+  genre_id int
+  cut_count int
+  updated_at timestamptz [default: `now()`]
+}
+
+Table diaries {
+  id int [pk, increment]
+  user_id int [not null]
+  storyline_id int
+  title varchar(255) [not null]
+  content text
+  created_at timestamptz [default: `now()`]
+  updated_at timestamptz [default: `now()`]
+  tsv tsvector
+
+  Indexes {
+    storyline_id
+  }
+}
+
+Enum story_status {
+  draft
+  generating
+  ready
+  failed
+}
+
+Table stories {
+  id int [pk, increment]
+  diary_id int [not null]
+  version_no int [not null]
+  status story_status [default: 'draft']
+  character_id int
+  style_id int
+  genre_id int
+  cut_count int
+  created_at timestamptz [default: `now()`]
+
+  Indexes {
+    (diary_id, version_no) [unique]
+  }
+}
+
+Table story_panels {
+  id int [pk, increment]
+  story_id int [not null]
+  panel_index int [not null]
+  text text
+  image_prompt text
+
+  Indexes {
+    (story_id, panel_index) [unique]
+  }
+}
+
+Table images {
+  id int [pk, increment]
+  story_panel_id int [not null]
+  url varchar(255) [not null]
+  provider varchar(100)
+  width int
+  height int
+  format varchar(50)
+  seed bigint
+  meta jsonb
+  created_at timestamptz [default: `now()`]
+}
+
+Enum generation_target_type {
+  story
+  panel
+  image
+}
+
+Table generations {
+  id int [pk, increment]
+  target_type generation_target_type [not null]
+  target_id int [not null]
+  model varchar(255)
+  prompt text
+  params jsonb
+  output text
+  created_at timestamptz [default: `now()`]
+}
+
+// --- Relationships ---
+Ref: characters.user_id > users.id
+Ref: storylines.user_id > users.id
+Ref: storylines.style_id > styles.id
+Ref: storylines.character_id > characters.id
+Ref: storylines.genre_id > genres.id
+Ref: user_default_settings.user_id > users.id
+Ref: user_default_settings.character_id > characters.id
+Ref: user_default_settings.style_id > styles.id
+Ref: user_default_settings.genre_id > genres.id
+Ref: diaries.user_id > users.id
+Ref: diaries.storyline_id > storylines.id [delete: set null]
+Ref: stories.diary_id > diaries.id
+Ref: stories.character_id > characters.id
+Ref: stories.style_id > styles.id
+Ref: stories.genre_id > genres.id
+Ref: story_panels.story_id > stories.id
+Ref: images.story_panel_id > story_panels.id
