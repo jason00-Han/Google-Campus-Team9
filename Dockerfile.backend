@@ -1,9 +1,12 @@
-FROM openjdk:23-slim
-
+# Stage 1: Build the application using Gradle
+FROM gradle:8.8-jdk21 AS build
 WORKDIR /app
+COPY backend/ .
+RUN gradle build --no-daemon --stacktrace
 
-COPY backend/target/*.jar app.jar
-
+# Stage 2: Create the final, smaller image
+FROM openjdk:23-slim
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
