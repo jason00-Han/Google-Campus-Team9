@@ -20,21 +20,13 @@ interface DiaryPageProps{
     onLogout: () => void;
 }
 
-export default function DiaryPage(props: DiaryPageProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
+export default function DiaryPage({ currentUser, onLogout }: DiaryPageProps) {
   const [panels, setPanels] = useState<ComicPanelData[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [globalStylePrompt, setGlobalStylePrompt] = useState('');
 
-  const handleLogin = (username: string) => {
-    setCurrentUser(username);
-    setIsLoggedIn(true);
-  };
-
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setCurrentUser('');
+    onLogout();
     setPanels([]);
     setGlobalStylePrompt('');
   };
@@ -223,12 +215,7 @@ export default function DiaryPage(props: DiaryPageProps) {
     setPanels([]);
     setIsProcessing(false);
   };
-
-  // Show auth screen if not logged in
-  if (!isLoggedIn) {
-    return <Auth onLogin={handleLogin} />;
-  }
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-orange-50 p-4">
       <div className="max-w-7xl mx-auto space-y-8">

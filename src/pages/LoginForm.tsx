@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -18,40 +19,27 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  
+  if (isSignUp && password !== confirmPassword) {
+    alert('비밀번호가 일치하지 않습니다.');
+    setIsLoading(false);
+    return;
+  }
 
-    // Simulate API call
-    setTimeout(() => {
-      // For testing: always succeed
-      // TODO: Replace with actual authentication logic
-      if (isSignUp) {
-        // Sign up logic
-        if (password !== confirmPassword) {
-          alert('비밀번호가 일치하지 않습니다.');
-          setIsLoading(false);
-          return;
-        }
-        // In production, this would create a new user account
-        onLogin(email);
-      } else {
-        // Login logic
-        // In production, this would verify email and password
-        onLogin(email);
-      }
-      setIsLoading(false);
-    }, 1000);
-  };
+  onLogin(email);
+
+  setTimeout(() => setIsLoading(false), 1000);
+};
 
   const handleSocialLogin = (provider: 'google' | 'kakao') => {
-    // TODO: Implement actual OAuth flow with the provider
-    // For testing, simulate login
     setIsLoading(true);
     setTimeout(() => {
       onLogin(`${provider}_user@example.com`);
       setIsLoading(false);
-    }, 1000);
+    }, 800);
   };
 
   return (
