@@ -1,22 +1,38 @@
-// src/App.tsx
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import DiaryPage from './pages/DiaryPage';
+import React, { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import LoginForm from './pages/LoginForm';
+import DiaryPage from './pages/Diary';
 
-function App() {
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+
+  const handleLogin = (username: string) => {
+    setCurrentUser(username);
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser('');
+    setIsLoggedIn(false);
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-
-        {/* 새로운 다이어리 페이지 라우트 추가 */}
-        <Route path="/diary" element={<DiaryPage />} />
-
-        {/* 앱 시작 시 로그인 페이지로 이동하도록 설정 */}
-        <Route path="/" element={<LoginPage />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {!isLoggedIn ? (
+        <Route path="/" element={<LoginForm onLogin={handleLogin} />} />
+      ) : (
+        <Route
+          path="/"
+          element={
+            <DiaryPage
+              currentUser={currentUser}
+              onLogout={handleLogout}
+            />
+          }
+        />
+      )}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
-
-export default App;
